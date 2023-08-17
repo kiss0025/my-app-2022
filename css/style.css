@@ -1,0 +1,161 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: #222;
+}
+svg {
+  display: block;
+  width: 100%;
+  height: 80%;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+}
+h1 {
+  width: 100%;
+  font-family: sans-serif;
+  position: absolute;
+  text-align: center;
+  color: white;
+}
+.top-text {
+  font-size: 32px;
+  top: 10%;
+  color: #ffff00;
+}
+.main-text {
+  font-size: 40px;
+  top: 40%;
+}
+.sub-text {
+  font-size: 30px;
+  font-weight: normal;
+  top: 60%;
+}
+.sub-text span {
+  font-size: 35px;
+}
+
+.audio-container {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 92%;
+  display: none;
+}
+
+.button-container {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 85%;
+}
+
+.ok-ng-button {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 1%;
+}
+
+button {
+  padding: 13px 28px;
+  width: 200px;
+  text-align: center;
+  font-size: 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  color: white;
+  transition: background-color 200ms linear;
+}
+button span {
+  display: block;
+  float: left;
+}
+
+.ok-button {
+  height: 50px;
+  width: 100px;
+  font-size: 20px;
+  background-color: #222;
+}
+.ng-button {
+  height: 50px;
+  width: 100px;
+  font-size: 20px;
+  background-color: #222;
+}
+
+.green-button {
+  background-color: #4caf50;
+}
+.green-button:hover {
+  background-color: #3e8e41;
+}
+.yellow-button {
+  background-color: #ffff00;
+  color: red;
+}
+.yellow-button:hover {
+  background-color: #ffd558;
+}
+.red-button {
+  background-color: #db6247;
+}
+.red-button:hover {
+  background-color: #cc5338;
+}
+.red-button:hover {
+  background-color: #cc5338;
+}
+
+#btn {
+  border: 1px solid blue;
+  background-color: rgba(0, 0, 0, 0);
+  color: blue;
+  width: 150px;
+  padding: 5px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-right: -4px;
+  height: 40px;
+}
+
+path {
+  stroke-linecap: square;
+  stroke: white;
+  stroke-width: 0.5px;
+}
+
+@media only screen and (max-width: 500px) {
+  .main-text {
+    font-size: 30px;
+  }
+  .sub-text {
+    font-size: 28px;
+  }
+  .sub-text span {
+    font-size: 30px;
+  }
+  button {
+    padding: 13px 28px;
+    width: 150px;
+    text-align: center;
+    font-size: 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    color: white;
+    transition: background-color 200ms linear;
+  }
+}

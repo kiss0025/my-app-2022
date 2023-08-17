@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script src="https://www.gstatic.com/firebasejs/7.2/firebase.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+        <script type="text/javascript" charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+        <style>
+            html,
+            body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: white;
+            }
+            #btn{
+            border: 1px solid blue;
+            background-color: rgba(0,0,0,0);
+            color: blue;
+            padding: 5px;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            margin-right:-4px;
+            height:40px;
+            }
+            table {                
+            border-collapse: collapse;
+            width:500px;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            table, td, th {
+            border: solid 1px #cccccc;
+            }
+            tr {
+            height:40px;
+            text-align: center;
+            }
+            td, th {
+            padding: 5px;
+            }
+            .set1 {
+            background-color: red;
+            color: white;
+            text-decoration: underline;
+            font-weight: bold;
+            }
+            #c_head {
+            height:30px;
+            background-color: #eeeeee;
+            }
+            #c_width{
+            width: 500px;
+            }
+            @media only screen and (max-width: 500px) {
+                .main-text {
+                    font-size: 30px;
+                }
+                .sub-text {
+                    font-size: 28px;
+                }
+                .sub-text span {
+                    font-size: 30px;
+                }
+                button {
+                    padding: 13px 28px;
+                    width: 150px;
+                    text-align: center;
+                    font-size: 15px;
+                    border-radius: 20px;
+                    text-decoration: none;
+                    border: none;
+                    cursor: pointer;
+                    outline: none;
+                    color: white;
+                    transition: background-color 200ms linear;
+                }
+            }
+        </style>
+
+        <title>사상통신분소 시험장치 v08.17a</title>
+    </head>
+    <body>
+        
+        <div style="text-align: center;">
+            <span style="color:blue; font-size: 20px;">사상통신분소 시험장치 v08.16
+                <button id="btn" onclick="location.href=window.location.href">REFRESH</button>
+                <button id="btn" onclick ="location.href='visualizer.html'">VOICE ANALYSIS</button>
+                <!--현재 페이지에서 다른 페이지로 이동하기
+                    onclick ="location.href='index.html'"
+                    새 페이지에서 다른 페이지 열기
+                    onclick ="window.open('index.html')"
+                    현재 페이지 새로고침
+                    onclick ="location.reload();"
+                    뒤로 가기
+                    onclick ="history.back();"
+                    뒤로 1번 가기
+                    onclick ="history.go(-1);"-->
+            </span><br>
+            <span id="clock" style="color:gray; font-size: 30px;">clock</span>
+            <span id="apm" style="color:gray; font-size: 18px;"  >ampm</span>
+        </div>
+        <div style="text-align: center;">
+            <span id="object" style="color:black; font-size: 20px;">clock</span>
+        </div>
+        <!--<h6>파이어베이스 실시간 연동하기</br>
+        Firebase + Realtime + Web </h6>
+        <p id="demo">A Paragraph.</p>-->
+        <pre id="object" ></pre>
+        <!--<button type="button" onclick="myFunction()">데이터 쓰기</button>-->
+
+        <div style="text-align: center;">
+            <table>
+                <tr id="c_head"><th>Temperature</th><th>Huminity</th><th>Voltage</th></tr>
+                <tr id="c_head">
+                <th>
+                    <div style="width:250px; height:200px;">
+                    <canvas id="donut1"></canvas>
+                    </div>
+                    </th>
+                <th>
+                    <div style="width:250px; height:200px;">
+                    <canvas id="donut2"></canvas>
+                    </div>
+                    </th>
+                    <th>
+                    <div style="width:250px; height:200px;">
+                    <canvas id="donut3"></canvas>
+                    </div>
+                    </th>
+                </tr><tr><td colspan=3>
+                    <div style="width:750px;">
+                    <canvas id="line1"></canvas>
+                    </div>
+                    </td></tr><tr><td colspan=3 align=center>
+                    <button id="btn" onclick="location.href=window.location.href">REFRESH</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <script>
+            n=0;
+            var firebaseConfig = {
+                apiKey: "Qt6iDXBO4vjbQIBCVcYgxdIzCQEF75ztyhL9JJAk",
+                authDomain: "ss-project-1st.firebaseapp.com",
+                databaseURL: "https://ss-project-1st-default-rtdb.firebaseio.com",
+                projectId: "ss-project-1st",
+                storageBucket: "ss-project-1st.appspot.com",
+                messagingSenderId: "972254485944",
+                appId: "1:972254485944:web:be2678a69cd7cbaf7f834d"
+                };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            // firebase에서 읽기
+            var demo = document.getElementById("demo");
+            var preObject = document.getElementById("object");
+            var dbRef = firebase.database().ref().child("esp8266");
+            //console.log(dbRef.on('value',snap));
+            //dbRef.on('value',snap => demo.innerHTML = snap.val());
+            dbRef.on('value',snap => {
+                preObject.innerText = JSON.stringify(snap.val(),null,1);
+                console.log("측정", n++);
+            });
+        </script>
+        <!-- <script>
+            function myFunction() {
+                document.getElementById("demo").innerHTML = "쓰기를 완료";
+                alert("쓰기 완료");
+                
+                //firebase에 쓰기
+                var dbRefObject = firebase.database().ref();
+                dbRefObject.child("object").set("Some Value");
+            }
+        </script> -->
+        <script>
+            var Target = document.getElementById("clock");
+            var Target_apm = document.getElementById("apm");
+            function clock() {
+                var time = new Date();
+                var hours = time.getHours();
+                var minutes = time.getMinutes();
+                var seconds = time.getSeconds();
+                var AmPm ="AM";
+                if(hours > 12){   
+                    var AmPm ="PM";
+                    hours %= 12;
+                }
+                Target.innerText = 
+                `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+                Target_apm.innerText = `${AmPm}`;
+            }
+            clock();
+            setInterval(clock, 1000); // 1초마다 실행
+        </script>
+
+
+
+        <script>
+            var ts = [27, 26, 24, 27, 28, 26, 27];
+            var hs = [50, 52, 48, 55, 56, 53, 54];
+            var vs = [13.5, 3.6, 13.4, 3.7, 13.8, 3.6, 3.7];
+           
+            var ts2string;
+            var hs2string;
+            var vs2string;
+            for(i = 0;i<7;i++){
+                ts2string += String(ts[i]);
+                hs2string += String(hs[i]);
+                vs2string += String(vs[i]);
+                if(i != 6){
+                ts2string += ","; 
+                hs2string += ",";
+                vs2string += ",";
+                }
+            }
+
+            var t_value = ts[6];
+            var t_color = "red";
+            var num = (t_value + 50)/100;
+            var data = { 
+                labels: [ "Temperature" ], 
+                datasets: [ { data: [num, 1-num], 
+                backgroundColor: [t_color ], 
+                hoverBackgroundColor: [t_color] }] 
+            };
+            var ctx2 = document.getElementById('donut1').getContext('2d');
+            var chart2 = new Chart(ctx2, {
+                type: 'doughnut', 
+                data: data, options: {
+                responsive: true,
+                legend: { display: false },
+                elements: {
+                     center: { text: Math.round(num*100), 
+                        fontStyle: 'Helvetica', sidePadding: 15 } },
+                maintainAspectRatio : false,
+                cutoutPercentage:70,
+                animation: {
+                    onComplete: function () {
+                        ctx2.textAlign = 'center';
+                        ctx2.textBaseline = 'middle';
+                        ctx2.font = '50px Arial';
+                        ctx2.fillStyle = t_color;
+                        ctx2.fillText(t_value , chart2.width/2, chart2.height-70);
+                        ctx2.font = '20px Arial';
+                        ctx2.fillText("('C)", chart2.width/2, chart2.height-40);
+                    }
+                },
+                rotation: 1 * Math.PI,
+                circumference: 1 * Math.PI }
+                });
+
+            var h_value = hs[6];
+            var h_color = "blue";
+            var num2 = h_value/100;
+            var data2 = {
+                labels: [ "Huminity" ],
+                datasets: [ 
+                    { data: [num2, 1-num2], 
+                        backgroundColor: [ h_color ], hoverBackgroundColor: [ h_color]
+                    }] };
+            var ctx3 = document.getElementById('donut2').getContext('2d');
+            var chart3 = new Chart(ctx3, {
+                type: 'doughnut',
+                data: data2,
+                options: {
+                    responsive: true,
+                    legend: { display: false },
+                    elements: { 
+                        center: { text: Math.round(num2*100), 
+                            fontStyle: 'Helvetica', sidePadding: 15 } },
+                    maintainAspectRatio : false,
+                    cutoutPercentage:70,
+                    animation: {
+                        onComplete: function () {
+                            ctx3.textAlign = 'center';
+                            ctx3.textBaseline = 'middle';
+                            ctx3.font = '50px Arial';
+                            ctx3.fillStyle = h_color;
+                            ctx3.fillText(h_value, chart3.width/2, chart3.height-70);
+                            ctx3.font = '20px Arial';
+                            ctx3.fillText("(%)", chart3.width/2, chart3.height-40);
+                            }
+                        },
+                    rotation: 1 * Math.PI,
+                    circumference: 1 * Math.PI }
+            });
+
+            var v_value = vs[6];
+            var v_color = "green";
+            var num3 = (v_value + 50)/100;
+            var data3 = {
+                labels: [ "Voltage" ],
+                datasets: [ {
+                    data: [num, 1-num],
+                    backgroundColor: [v_color ],
+                    hoverBackgroundColor: [v_color] 
+                }] 
+            };
+            var ctx4 = document.getElementById('donut3').getContext('2d');
+            var chart4 = new Chart(ctx4, {
+                type: 'doughnut',
+                data: data3,
+                options: {
+                responsive: true,
+                legend: { display: false },
+                elements: {
+                    center: {
+                        text: Math.round(num*100), fontStyle: 'Helvetica', sidePadding: 15 }
+                },
+                maintainAspectRatio : false,
+                cutoutPercentage:70,
+                animation: {
+                    onComplete: function () {
+                        ctx4.textAlign = 'center';
+                        ctx4.textBaseline = 'middle';
+                        ctx4.font = '50px Arial';
+                        ctx4.fillStyle = t_color;
+                        ctx4.fillText(v_value , chart2.width/2, chart2.height-70);
+                        ctx4.font = '20px Arial';
+                        ctx4.fillText("('V)", chart2.width/2, chart2.height-40);
+                    }
+                },
+                rotation: 1 * Math.PI,
+                circumference: 1 * Math.PI }
+            });
+
+            var ctx = document.getElementById('line1').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['N-6', 'N-5', 'N-4', 'N-3', 'N-2', 'N-1', 'N'],
+                    datasets: [ {
+                        label: 'Temperature',
+                        backgroundColor: 'transparent',
+                        borderColor: t_color,
+                        data: ts
+                    },
+                    {
+                        label: 'Huminity',
+                        backgroundColor: 'transparent',
+                        borderColor: h_color,
+                        data: hs
+                    },
+                    {
+                        label: 'Voltage',
+                    backgroundColor: 'transparent',
+                    borderColor: v_color,
+                    data: vs
+                    } ]
+                },
+                options: {}
+                });
+            </script>
+
+
+    </body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>마이크</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+</head>
+<body>
+    <button id="btn" onclick ="history.back();">GO BACK</button>
+    <button id="btn" onclick ="location.href='index.html'">GO HOME</button>
+                           
+
+    <svg preserveAspectRatio="none" id="visualizer" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs>
+            <mask id="mask">
+                <g id="maskGroup"></g>
+            </mask>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#db6247;stop-opacity:1" />
+                <stop offset="40%" style="stop-color:#f6e5d1;stop-opacity:1" />
+                <stop offset="60%" style="stop-color:#5c79c7;stop-opacity:1" />
+                <stop offset="85%" style="stop-color:#b758c0;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#222;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#gradient)" mask="url(#mask)"></rect>
+    </svg>
+    
+
+    <!-- 중간부 db 표시부 -->
+    <h1 id="db_value" class="main-text">Please press button to start.</h1>
+
+    <h1 class="sub-text"></h1>
+
+    <h1 class="top-text">편의시설 통화시험장치</h1>
+
+    <div class="ok-ng-button">
+        <button id="btn-ok" class="ok-button"></span></button>
+        <button id="btn-ng" class="ng-button"></span></button>
+    </div>
+
+    <div class="button-container">
+        <button id="button" class="green-button"><span class="fa fa-play"></span>   Start Listen</button>
+        <button id="button-rec" class="yellow-button"><span class="fa fa-play"></span>   Start Rec</button>
+    </div>
+    <div class="audio-container" id="audio-c">
+        <audio controls>녹음된 소리를 재생할 audio 엘리먼트</audio>
+    </div>
+    
+    <script  src="js/index.js"></script>
+
+</body>
+
+<script>
+
+    // audio, button 태그 취득
+    const $audioEl = document.querySelector("audio");
+    const $btn = document.getElementById('button-rec');
+
+    // 녹음 상태 체크용 변수
+    let isRecording = false;
+
+    // MediaRecorder 변수 생성
+    let mediaRecorder = null;
+
+    // 녹음 데이터(Blob) 조각 저장 배열
+    const audioArray = [];
+
+
+    // 녹음 시작/종료 버튼 클릭 이벤트 처리
+    $btn.onclick = async function (event) {
+        
+        // 녹음 중이 아닌 경우에만 녹음 시작 처리
+        if(!isRecording){
+
+            // 마이크 mediaStream 생성: Promise를 반환하므로 async/await 사용
+            const mediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+
+            // MediaRecorder 생성: 마이크 MediaStream을 인자로 입력
+            mediaRecorder = new MediaRecorder(mediaStream);
+
+            // 이벤트핸들러: 녹음 데이터 취득 처리
+            mediaRecorder.ondataavailable = (event)=>{
+                audioArray.push(event.data); // 오디오 데이터가 취득될 때마다 배열에 담아둔다.
+            }
+
+            // 이벤트핸들러: 녹음 종료 처리 & 재생하기
+            mediaRecorder.onstop = (event)=>{
+                
+                // 녹음이 종료되면, 배열에 담긴 오디오 데이터(Blob)들을 합친다: 코덱도 설정해준다.
+                const blob = new Blob(audioArray, {"type": "audio/ogg codecs=opus"});
+                audioArray.splice(0); // 기존 오디오 데이터들은 모두 비워 초기화한다.
+                
+                // Blob 데이터에 접근할 수 있는 객체URL을 생성한다.
+                const blobURL = window.URL.createObjectURL(blob);
+
+                // audio엘리먼트로 재생한다.
+                $audioEl.src = blobURL;
+                $audioEl.play();                
+
+            }
+
+            // 녹음 시작
+            mediaRecorder.start();
+            isRecording = true;
+            this.innerHTML = "<span class='fa fa-stop'></span>Recording...";
+            this.className = "red-button";
+            console.log('이프 참....');
+            document.getElementById('audio-c').style.display = "none";
+            
+        }else{
+            // 녹음 종료
+            mediaRecorder.stop();
+            isRecording = false;
+            this.innerHTML = "<span class='fa fa-play'></span>Start Rec";
+            this.className = "yellow-button";
+            console.log('이프 거짓....');
+            document.getElementById('audio-c').style.display = "block";
+    
+
+        };
+    }
+
+</script>
+
+</html>
